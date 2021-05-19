@@ -1,5 +1,5 @@
 /*
-Copyright 2020 The Kubernetes authors.
+
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-// +kubebuilder:docs-gen:collapse=Apache License
 
 package v1
 
@@ -25,21 +24,12 @@ import (
 	validationutils "k8s.io/apimachinery/pkg/util/validation"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	ctrl "sigs.k8s.io/controller-runtime"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
+	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 )
 
-// +kubebuilder:docs-gen:collapse=Go imports
-
-/*
-Next, we'll setup a logger for the webhooks.
-*/
-
+// log is for logging in this package.
 var cronjoblog = logf.Log.WithName("cronjob-resource")
-
-/*
-Then, we set up the webhook with the manager.
-*/
 
 func (r *CronJob) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
@@ -47,21 +37,9 @@ func (r *CronJob) SetupWebhookWithManager(mgr ctrl.Manager) error {
 		Complete()
 }
 
-/*
-Notice that we use kubebuilder markers to generate webhook manifests.
-This marker is responsible for generating a mutating webhook manifest.
+// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 
-The meaning of each marker can be found [here](/reference/markers/webhook.md).
-*/
-
-//+kubebuilder:webhook:path=/mutate-batch-tutorial-kubebuilder-io-v1-cronjob,mutating=true,failurePolicy=fail,groups=batch.tutorial.kubebuilder.io,resources=cronjobs,verbs=create;update,versions=v1,name=mcronjob.kb.io
-
-/*
-We use the `webhook.Defaulter` interface to set defaults to our CRD.
-A webhook will automatically be served that calls this defaulting.
-
-The `Default` method is expected to mutate the receiver, setting the defaults.
-*/
+// +kubebuilder:webhook:path=/mutate-batch-tutorial-kubebuilder-io-v1-cronjob,mutating=true,failurePolicy=fail,groups=batch.tutorial.kubebuilder.io,resources=cronjobs,verbs=create;update,versions=v1,name=mcronjob.kb.io
 
 var _ webhook.Defaulter = &CronJob{}
 
@@ -85,34 +63,8 @@ func (r *CronJob) Default() {
 	}
 }
 
-/*
-This marker is responsible for generating a validating webhook manifest.
-*/
-
 // TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.
-//+kubebuilder:webhook:verbs=create;update,path=/validate-batch-tutorial-kubebuilder-io-v1-cronjob,mutating=false,failurePolicy=fail,groups=batch.tutorial.kubebuilder.io,resources=cronjobs,versions=v1,name=vcronjob.kb.io
-
-/*
-To validate our CRD beyond what's possible with declarative validation.
-Generally, declarative validation should be sufficient, but sometimes more
-advanced use cases call for complex validation.
-
-For instance, we'll see below that we use this to validate a well-formed cron
-schedule without making up a long regular expression.
-
-If `webhook.Validator` interface is implemented, a webhook will automatically be
-served that calls the validation.
-
-The `ValidateCreate`, `ValidateUpdate` and `ValidateDelete` methods are expected
-to validate that its receiver upon creation, update and deletion respectively.
-We separate out ValidateCreate from ValidateUpdate to allow behavior like making
-certain fields immutable, so that they can only be set on creation.
-ValidateDelete is also separated from ValidateUpdate to allow different
-validation behavior on deletion.
-Here, however, we just use the same shared validation for `ValidateCreate` and
-`ValidateUpdate`. And we do nothing in `ValidateDelete`, since we don't need to
-validate anything on deletion.
-*/
+// +kubebuilder:webhook:verbs=create;update,path=/validate-batch-tutorial-kubebuilder-io-v1-cronjob,mutating=false,failurePolicy=fail,groups=batch.tutorial.kubebuilder.io,resources=cronjobs,versions=v1,name=vcronjob.kb.io
 
 var _ webhook.Validator = &CronJob{}
 
@@ -120,14 +72,16 @@ var _ webhook.Validator = &CronJob{}
 func (r *CronJob) ValidateCreate() error {
 	cronjoblog.Info("validate create", "name", r.Name)
 
-	return r.validateCronJob()
+	// TODO(user): fill in your validation logic upon object creation.
+	return nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (r *CronJob) ValidateUpdate(old runtime.Object) error {
 	cronjoblog.Info("validate update", "name", r.Name)
 
-	return r.validateCronJob()
+	// TODO(user): fill in your validation logic upon object update.
+	return nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
@@ -137,10 +91,6 @@ func (r *CronJob) ValidateDelete() error {
 	// TODO(user): fill in your validation logic upon object deletion.
 	return nil
 }
-
-/*
-We validate the name and the spec of the CronJob.
-*/
 
 func (r *CronJob) validateCronJob() error {
 	var allErrs field.ErrorList
@@ -159,16 +109,6 @@ func (r *CronJob) validateCronJob() error {
 		r.Name, allErrs)
 }
 
-/*
-Some fields are declaratively validated by OpenAPI schema.
-You can find kubebuilder validation markers (prefixed
-with `// +kubebuilder:validation`) in the
-[Designing an API](api-design.md) section.
-You can find all of the kubebuilder supported markers for
-declaring validation by running `controller-gen crd -w`,
-or [here](/reference/markers/crd-validation.md).
-*/
-
 func (r *CronJob) validateCronJobSpec() *field.Error {
 	// The field helpers from the kubernetes API machinery help us return nicely
 	// structured validation errors.
@@ -177,26 +117,12 @@ func (r *CronJob) validateCronJobSpec() *field.Error {
 		field.NewPath("spec").Child("schedule"))
 }
 
-/*
-We'll need to validate the [cron](https://en.wikipedia.org/wiki/Cron) schedule
-is well-formatted.
-*/
-
 func validateScheduleFormat(schedule string, fldPath *field.Path) *field.Error {
 	if _, err := cron.ParseStandard(schedule); err != nil {
 		return field.Invalid(fldPath, schedule, err.Error())
 	}
 	return nil
 }
-
-/*
-Validating the length of a string field can be done declaratively by
-the validation schema.
-
-But the `ObjectMeta.Name` field is defined in a shared package under
-the apimachinery repo, so we can't declaratively validate it using
-the validation schema.
-*/
 
 func (r *CronJob) validateCronJobName() *field.Error {
 	if len(r.ObjectMeta.Name) > validationutils.DNS1035LabelMaxLength-11 {
@@ -210,5 +136,3 @@ func (r *CronJob) validateCronJobName() *field.Error {
 	}
 	return nil
 }
-
-// +kubebuilder:docs-gen:collapse=Validate object name

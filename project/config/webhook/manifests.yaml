@@ -1,18 +1,40 @@
-
----
-apiVersion: admissionregistration.k8s.io/v1beta1
+apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
-  creationTimestamp: null
   name: mutating-webhook-configuration
 webhooks:
-- clientConfig:
+- name: mcronjob.kb.io
+  sideEffects: None
+  timeoutSeconds: 5
+  failurePolicy: Fail
+  admissionReviewVersions: ["v1", "v1beta1"]
+  rules:
+  - apiGroups:
+    - batch.tutorial.kubebuilder.io
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - cronjobs
+  clientConfig:
     service:
       name: webhook-service
       namespace: system
       path: /mutate-batch-tutorial-kubebuilder-io-v1-cronjob
+
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: validating-webhook-configuration
+webhooks:
+- name: vcronjob.kb.io
+  sideEffects: None
+  timeoutSeconds: 5
+  admissionReviewVersions: ["v1", "v1beta1"]
   failurePolicy: Fail
-  name: mcronjob.kb.io
   rules:
   - apiGroups:
     - batch.tutorial.kubebuilder.io
@@ -23,28 +45,8 @@ webhooks:
     - UPDATE
     resources:
     - cronjobs
-
----
-apiVersion: admissionregistration.k8s.io/v1beta1
-kind: ValidatingWebhookConfiguration
-metadata:
-  creationTimestamp: null
-  name: validating-webhook-configuration
-webhooks:
-- clientConfig:
+  clientConfig:
     service:
       name: webhook-service
       namespace: system
       path: /validate-batch-tutorial-kubebuilder-io-v1-cronjob
-  failurePolicy: Fail
-  name: vcronjob.kb.io
-  rules:
-  - apiGroups:
-    - batch.tutorial.kubebuilder.io
-    apiVersions:
-    - v1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - cronjobs
