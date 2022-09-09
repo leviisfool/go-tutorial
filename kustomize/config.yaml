@@ -1,0 +1,10 @@
+commonLabels:
+  - path: metadata/labels
+    create: true
+  - path: spec/selector
+    create: true
+    version: v1
+    kind: Service
+  - path: spec/selector/matchLabels
+    create: true
+    kind: Deployment

@@ -1,0 +1,6 @@
+resources:
+  - service.yaml
+configurations:
+  - config.yaml
+commonLabels:
+  app: bingo

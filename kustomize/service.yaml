@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-controller-pprof-nodeport
+  namespace: grafana-operator
+spec:
+  ports:
+    - name: tcp-client
+      port: 6060
+      protocol: TCP
+      targetPort: 6060
+  selector:
+      app.orcastack.io/name: grafana-controller
+  type: NodePort
